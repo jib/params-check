@@ -1,0 +1,7 @@
+Makefile.PL
+MANIFEST
+README
+CHANGES
+lib/Params/Check.pm
+t/01_Params-Check.t
+META.yml                                 Module meta-data (added by MakeMaker)
