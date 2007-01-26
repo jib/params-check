@@ -9,6 +9,7 @@ WriteMakefile (
                         'Test::More'                => 0, 
                         'Locale::Maketext::Simple'  => 0,    
                     },
+    INSTALLDIRS     => ( $] >= 5.009005 ? 'perl' : 'site' ),
     AUTHOR          => 'Jos Boumans <kane[at]cpan.org>',
 	ABSTRACT        => 'Templated based param validation'
 );     
