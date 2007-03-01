@@ -1,10 +1,17 @@
+Changes for 0.26    Thu Mar  1 12:05:08 2007
+============================================
+
+* Set install_dirs to 'perl' if perl >= 5.9.5
+* Address #23824: Bug concering the loss of the 
+  last_error message when checking recursively. 
+
 Changes for 0.25    Wed Jul  5 17:13:07 2006
 ============================================
 
 * Apply patch from #20299 that implements the 
   $Params::Check::CALLER_DEPTH variable.
 * Add a warning if the store => variable
-  s not a reference.
+  is not a reference.
 
 Changes for 0.24    Thu Mar  2 13:04:27 2006
 ============================================
