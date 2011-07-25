@@ -1,3 +1,9 @@
+Changes for 0.30    Mon Jul 25 14:44:40 2011
+============================================
+* Resolve [rt #69626] reported by Diab Jerius,
+  WARNINGS_FATAL should apply to all check()
+  failures now.
+
 Changes for 0.28    Fri Jan  7 21:52:28 2011
 ============================================
 * Apply blead patch from Peter Acklam

@@ -18,7 +18,7 @@ BEGIN {
     @ISA        =   qw[ Exporter ];
     @EXPORT_OK  =   qw[check allow last_error];
 
-    $VERSION                = '0.28';
+    $VERSION                = '0.30';
     $VERBOSE                = $^W ? 1 : 0;
     $NO_DUPLICATES          = 0;
     $STRIP_LEADING_DASHES   = 0;
