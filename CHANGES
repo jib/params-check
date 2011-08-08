@@ -1,3 +1,7 @@
+Changes for 0.32    Mon Aug  8 10:53:36 2011
+============================================
+* Removed unnecessary use Data::Dumper
+
 Changes for 0.30    Mon Jul 25 14:44:40 2011
 ============================================
 * Resolve [rt #69626] reported by Diab Jerius,
