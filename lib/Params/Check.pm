@@ -271,25 +271,21 @@ sub check {
     my $defs = _sanity_check_and_defaults( $utmpl, $args, $verbose )
                     or return;
 
-    ### deref only once ###
-    my %utmpl   = %$utmpl;
-    my %args    = %$args;
-    my %defs    = %$defs;
-
     ### flag to see if anything went wrong ###
     my $wrong;
 
     ### flag to see if we warned for anything, needed for warnings_fatal
     my $warned;
 
-    for my $key (keys %args) {
+    for my $key (keys %$args) {
+        my $arg = $args->{$key};
 
         ### you gave us this key, but it's not in the template ###
-        unless( $utmpl{$key} ) {
+        unless( $utmpl->{$key} ) {
 
             ### but we'll allow it anyway ###
             if( $ALLOW_UNKNOWN ) {
-                $defs{$key} = $args{$key};
+                $defs->{$key} = $arg;
 
             ### warn about the error ###
             } else {
@@ -301,8 +297,11 @@ sub check {
             next;
         }
 
+        ### copy of this keys template instructions, to save derefs ###
+        my %tmpl = %{$utmpl->{$key}};
+
         ### check if you're even allowed to override this key ###
-        if( $utmpl{$key}->{'no_override'} ) {
+        if( $tmpl{'no_override'} ) {
             _store_error(
                 loc(q[You are not allowed to override key '%1'].
                     q[for %2 from %3], $key, _who_was_it(), _who_was_it(1)),
@@ -312,13 +311,8 @@ sub check {
             next;
         }
 
-        ### copy of this keys template instructions, to save derefs ###
-        my %tmpl = %{$utmpl{$key}};
-
         ### check if you were supposed to provide defined() values ###
-        if( ($tmpl{'defined'} || $ONLY_ALLOW_DEFINED) and
-            not defined $args{$key}
-        ) {
+        if( ($tmpl{'defined'} || $ONLY_ALLOW_DEFINED) and not defined $arg ) {
             _store_error(loc(q|Key '%1' must be defined when passed|, $key),
                 $verbose );
             $wrong ||= 1;
@@ -327,7 +321,7 @@ sub check {
 
         ### check if they should be of a strict type, and if it is ###
         if( ($tmpl{'strict_type'} || $STRICT_TYPE) and
-            (ref $args{$key} ne ref $tmpl{'default'})
+            (ref $arg ne ref $tmpl{'default'})
         ) {
             _store_error(loc(q|Key '%1' needs to be of type '%2'|,
                         $key, ref $tmpl{'default'} || 'SCALAR'), $verbose );
@@ -339,21 +333,21 @@ sub check {
         ### allow() will report its own errors ###
         if( exists $tmpl{'allow'} and not do {
                 local $_ERROR_STRING;
-                allow( $args{$key}, $tmpl{'allow'} )
+                allow( $arg, $tmpl{'allow'} )
             }
         ) {
             ### stringify the value in the error report -- we don't want dumps
             ### of objects, but we do want to see *roughly* what we passed
             _store_error(loc(q|Key '%1' (%2) is of invalid type for '%3' |.
                              q|provided by %4|,
-                            $key, "$args{$key}", _who_was_it(),
+                            $key, "$arg", _who_was_it(),
                             _who_was_it(1)), $verbose);
             $wrong ||= 1;
             next;
         }
 
         ### we got here, then all must be OK ###
-        $defs{$key} = $args{$key};
+        $defs->{$key} = $arg;
 
     }
 
@@ -368,13 +362,13 @@ sub check {
     ### check if we need to store any of the keys ###
     ### can't do it before, because something may go wrong later,
     ### leaving the user with a few set variables
-    for my $key (keys %defs) {
-        if( my $ref = $utmpl{$key}->{'store'} ) {
-            $$ref = $NO_DUPLICATES ? delete $defs{$key} : $defs{$key};
+    for my $key (keys %$defs) {
+        if( my $ref = $utmpl->{$key}{'store'} ) {
+            $$ref = $NO_DUPLICATES ? delete $defs->{$key} : $defs->{$key};
         }
     }
 
-    return \%defs;
+    return $defs;
 }
 
 =head2 allow( $test_me, \@criteria );
