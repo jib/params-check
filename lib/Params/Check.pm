@@ -476,18 +476,17 @@ sub _clean_up_args {
 }
 
 sub _sanity_check_and_defaults {
-    my %utmpl   = %{$_[0]};
-    my %args    = %{$_[1]};
-    my $verbose = $_[2];
+    my ($utmpl, $args, $verbose) = @_;
 
     my %defs; my $fail;
-    for my $key (keys %utmpl) {
+    for my $key (keys %$utmpl) {
+        my $tmpl = $utmpl->{$key};
 
         ### check if required keys are provided
         ### keys are now lower cased, unless preserve case was enabled
         ### at which point, the utmpl keys must match, but that's the users
         ### problem.
-        if( $utmpl{$key}->{'required'} and not exists $args{$key} ) {
+        if( $tmpl->{'required'} and not exists $args->{$key} ) {
             _store_error(
                 loc(q|Required option '%1' is not provided for %2 by %3|,
                     $key, _who_was_it(1), _who_was_it(2)), $verbose );
@@ -498,8 +497,8 @@ sub _sanity_check_and_defaults {
         }
 
         ### next, set the default, make sure the key exists in %defs ###
-        $defs{$key} = $utmpl{$key}->{'default'}
-                        if exists $utmpl{$key}->{'default'};
+        $defs{$key} = $tmpl->{'default'}
+                        if exists $tmpl->{'default'};
 
         if( $SANITY_CHECK_TEMPLATE ) {
             ### last, check if they provided any weird template keys
@@ -510,13 +509,13 @@ sub _sanity_check_and_defaults {
                         $_, $key), 1, 1 );
             } grep {
                 not $known_keys{$_}
-            } keys %{$utmpl{$key}};
+            } keys %$tmpl;
 
             ### make sure you passed a ref, otherwise, complain about it!
-            if ( exists $utmpl{$key}->{'store'} ) {
+            if ( exists $tmpl->{'store'} ) {
                 _store_error( loc(
                     q|Store variable for '%1' is not a reference!|, $key
-                ), 1, 1 ) unless ref $utmpl{$key}->{'store'};
+                ), 1, 1 ) unless ref $tmpl->{'store'};
             }
         }
     }
