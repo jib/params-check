@@ -265,7 +265,20 @@ sub check {
     #}
 
     ### clean up the template ###
-    my $args = _clean_up_args( $href ) or return;
+    my $args;
+
+    ### don't even bother to loop, if there's nothing to clean up ###
+    if( $PRESERVE_CASE and !$STRIP_LEADING_DASHES ) {
+        $args = $href;
+    } else {
+        ### keys are not aliased ###
+        for my $key (keys %$href) {
+            my $org = $key;
+            $key = lc $key unless $PRESERVE_CASE;
+            $key =~ s/^-// if $STRIP_LEADING_DASHES;
+            $args->{$key} = $href->{$org};
+        }
+    }
 
     ### sanity check + defaults + required keys set? ###
     my $defs = _sanity_check_and_defaults( $utmpl, $args, $verbose )
@@ -448,26 +461,6 @@ sub allow {
 }
 
 ### helper functions ###
-
-### clean up the template ###
-sub _clean_up_args {
-    ### don't even bother to loop, if there's nothing to clean up ###
-    return $_[0] if $PRESERVE_CASE and !$STRIP_LEADING_DASHES;
-
-    my %args = %{$_[0]};
-
-    ### keys are note aliased ###
-    for my $key (keys %args) {
-        my $org = $key;
-        $key = lc $key unless $PRESERVE_CASE;
-        $key =~ s/^-// if $STRIP_LEADING_DASHES;
-        $args{$key} = delete $args{$org} if $key ne $org;
-    }
-
-    ### return references so we always return 'true', even on empty
-    ### arguments
-    return \%args;
-}
 
 sub _sanity_check_and_defaults {
     my ($utmpl, $args, $verbose) = @_;
