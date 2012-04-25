@@ -1,3 +1,8 @@
+Changes for 0.34    Wed Apr 25 13:51:31 2012
+============================================
+* check() now works fasteh thanks to 
+  Vincent Pit
+
 Changes for 0.32    Mon Aug  8 10:53:36 2011
 ============================================
 * Removed unnecessary use Data::Dumper
