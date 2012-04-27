@@ -282,6 +282,9 @@ sub check {
 
     my %defs;
 
+    ### which template entries have a 'store' member
+    my @want_store;
+
     ### sanity check + defaults + required keys set? ###
     my $fail;
     for my $key (keys %$utmpl) {
@@ -323,6 +326,8 @@ sub check {
                 ), 1, 0 ) unless ref $tmpl->{'store'};
             }
         }
+
+        push @want_store, $key if $tmpl->{'store'};
     }
 
     ### errors found ###
@@ -419,10 +424,10 @@ sub check {
     ### check if we need to store any of the keys ###
     ### can't do it before, because something may go wrong later,
     ### leaving the user with a few set variables
-    for my $key (keys %defs) {
-        if( my $ref = $utmpl->{$key}{'store'} ) {
-            $$ref = $NO_DUPLICATES ? delete $defs{$key} : $defs{$key};
-        }
+    for my $key (@want_store) {
+        next unless exists $defs{$key};
+        my $ref = $utmpl->{$key}{'store'};
+        $$ref = $NO_DUPLICATES ? delete $defs{$key} : $defs{$key};
     }
 
     return \%defs;
