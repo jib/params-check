@@ -210,7 +210,7 @@ C<check> takes a list of arguments, as follows:
 
 =item Template
 
-This is a hashreference which contains a template as explained in the
+This is a hash reference which contains a template as explained in the
 C<SYNOPSIS> and C<Template> section.
 
 =item Arguments
