@@ -134,6 +134,24 @@ use constant TRUE   => sub { 1 };
     }
 }
 
+{   my $foo;
+    my $tmpl = {
+        foo => { store => 'bar' }
+    };
+
+    ### with/without store duplicates ###
+    for( 1, 0 ) {
+        local   $Params::Check::NO_DUPLICATES = $_;
+
+        my $expect = $_ ? undef : 42;
+
+        my $rv = check( $tmpl, { foo => 42 } );
+        ok( $rv,                    "check() call with store key, no_dup: $_" );
+        is( $rv->{bar}, 42,         "   found provided value in variable" );
+        is( $rv->{foo}, $expect,    "   found provided value in variable" );
+    }
+}
+
 ### no_override tests ###
 {   my $tmpl = {
         foo => { no_override => 1, default => 42 },
@@ -276,10 +294,10 @@ use constant TRUE   => sub { 1 };
 {   ### quell warnings
     local $SIG{__WARN__} = sub {};
 
-    my $tmpl = { foo => { store => '' } };
+    my $tmpl = { foo => { store => [] } };
     check( $tmpl, {} );
 
-    my $re = quotemeta q|Store variable for 'foo' is not a reference!|;
+    my $re = quotemeta q|Store variable for 'foo' is not a scalar reference|;
     like(last_error(), qr/$re/, "Caught non-reference 'store' variable" );
 }
 

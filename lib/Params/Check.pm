@@ -169,8 +169,11 @@ C<Params::Check> template.
 
 =item store
 
-This allows you to pass a reference to a scalar, in which the data
-will be stored:
+This allows you to pass a either a reference to a scalar in which the
+data will be stored or a scalar which will be used as a key in the
+returned hash.
+
+If C<store> is a reference to a scalar:
 
     my $x;
     my $args = check(foo => { default => 1, store => \$x }, $input);
@@ -180,9 +183,20 @@ This is basically shorthand for saying:
     my $args = check( { foo => { default => 1 }, $input );
     my $x    = $args->{foo};
 
+
+If C<store> is a scalar:
+
+    my $args = check(foo => { default => 1, store => 'bar' }, $input);
+
+This is basically shorthand for saying:
+
+    my $args = check( { foo => { default => 1 }, $input );
+    $args->{bar} = $args->{foo};
+
 You can alter the global variable $Params::Check::NO_DUPLICATES to
 control whether the C<store>'d key will still be present in your
 result set. See the L<Global Variables> section below.
+
 
 =item allow
 
@@ -322,8 +336,8 @@ sub check {
             ### make sure you passed a ref, otherwise, complain about it!
             if ( exists $tmpl->{'store'} ) {
                 _store_error( loc(
-                    q|Store variable for '%1' is not a reference!|, $key
-                ), 1, 0 ) unless ref $tmpl->{'store'};
+                    q|Store variable for '%1' is not a scalar reference or scalar!|, $key
+                ), 1, 0 ) unless ! ref $tmpl->{'store'} || 'SCALAR' eq ref $tmpl->{'store'};
             }
         }
 
@@ -427,7 +441,9 @@ sub check {
     for my $key (@want_store) {
         next unless exists $defs{$key};
         my $ref = $utmpl->{$key}{'store'};
-        $$ref = $NO_DUPLICATES ? delete $defs{$key} : $defs{$key};
+
+        ( ref $ref ? $$ref : $defs{$ref} ) = $NO_DUPLICATES ? delete $defs{$key} : $defs{$key};
+
     }
 
     return \%defs;
