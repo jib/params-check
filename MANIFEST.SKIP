@@ -1,0 +1,7 @@
+tags
+.git*
+Makefile$
+Makefile.old
+MANIFEST.bak
+MYMETA.yml
+blib

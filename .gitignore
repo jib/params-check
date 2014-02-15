@@ -1,0 +1,6 @@
+tags
+Makefile
+Makefile.old
+MANIFEST.bak
+MYMETA.yml
+blib/*
